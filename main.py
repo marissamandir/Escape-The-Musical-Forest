@@ -1,5 +1,8 @@
 import pygame
 import random
+import pyaudio
+import librosa
+import wave
 
 # Initialize Pygame
 pygame.init()
