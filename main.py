@@ -1,7 +1,9 @@
 import pygame
+import random
 
 # Initialize Pygame
 pygame.init()
+pygame.mixer.init()
 
 # Define colors
 BLACK = (0, 0, 0)
@@ -44,7 +46,17 @@ current_page = PAGE_MAIN
 
 main_button_rect = pygame.Rect(450, 500, 200, 50)
 next_button_rect = pygame.Rect(450, 400, 200, 50)
-result_button_rect = pygame.Rect(450, 500, 200, 50)
+
+mic_button_rect = pygame.Rect(450, 500, 200, 50)
+
+
+result_button_rects = [
+    pygame.Rect(450, 500, 200, 50),  # First button
+    pygame.Rect(450, 570, 200, 50),  # Second button
+    pygame.Rect(450, 640, 200, 50)   # Third button
+]
+
+
 back_button_rect = pygame.Rect(450, 400, 200, 50)
 continue_button_rect = pygame.Rect(450, 600, 200, 50)
 
@@ -55,6 +67,14 @@ turns = 0
 score = 0
 correct_ans = True
 answer_processed = False
+
+intervals_sounds = ["fifth", "fourth", "maj2", "maj3", "maj6", "maj7", "min2", "min3", "min6", "min7",
+                    "octave", "tritone", "unison"]
+
+sound = pygame.mixer.Sound('intervalsounds/fifth.wav')
+
+notes_png = pygame.image.load('notes.png')
+notes_rect = notes_png.get_rect(topleft=(450, 220))
 
 # PAGE DRAWING METHODS
 
@@ -67,16 +87,73 @@ def draw_task_bar():
     pygame.draw.ellipse(display, BLACK, ((280 + bar_end), 43, 25, 20))
     
 def draw_singing_question():
+    display.blit(question_bg_image, (0, 0))
+    draw_turns()
+    font = pygame.font.Font(None, 48)
+
     font = pygame.font.Font(None, 48)
     text = font.render("Sight-Singing Question Goes Here", True, BLACK)
     text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
     display.blit(text, text_rect)
 
+    # Draw back button
+    if mic_button_rect.collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(display, button_hover_color, mic_button_rect)
+    else:
+        pygame.draw.rect(display, button_color, mic_button_rect)
+    
+    mic_text = font.render("Sing!", True, WHITE)
+  
+    mic_text_rect = mic_text.get_rect(center=mic_button_rect.center)
+    display.blit(mic_text, mic_text_rect)
+
 def draw_hearing_question():
+    display.blit(question_bg_image, (0, 0))
+    draw_turns()
     font = pygame.font.Font(None, 48)
-    text = font.render("Hearing Interval Question Goes Here", True, BLACK)
-    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
+
+    global notes_png
+    notes_png = pygame.transform.scale(notes_png, (200, 200))
+    display.blit(notes_png, (450, 220))
+  
+    if result_button_rects[0].collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(display, button_hover_color, result_button_rects[0])
+    else:
+        pygame.draw.rect(display, button_color, result_button_rects[0])
+
+    if result_button_rects[1].collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(display, button_hover_color, result_button_rects[1])
+    else:
+        pygame.draw.rect(display, button_color, result_button_rects[1])
+    
+    if result_button_rects[2].collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(display, button_hover_color, result_button_rects[2])
+    else:
+        pygame.draw.rect(display, button_color, result_button_rects[2])
+  
+    result_text1 = font.render("Answer Choice", True, WHITE)
+        #here instead we draw 3 buttons w "answer choice" as text
+
+    result_text_rect1 = result_text1.get_rect(center=result_button_rects[0].center)
+    display.blit(result_text1, result_text_rect1)
+
+    result_text2 = font.render("Answer Choice", True, WHITE)
+        #here instead we draw 3 buttons w "answer choice" as text
+
+    result_text_rect2 = result_text2.get_rect(center=result_button_rects[1].center)
+    display.blit(result_text2, result_text_rect2)
+
+    result_text3 = font.render("Answer Choice", True, WHITE)
+        #here instead we draw 3 buttons w "answer choice" as text
+
+    result_text_rect3 = result_text3.get_rect(center=result_button_rects[2].center)
+    display.blit(result_text3, result_text_rect3)
+
+    font = pygame.font.Font(None, 48)
+    text = font.render("Click for music!", True, BLACK)
+    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 - 180))
     display.blit(text, text_rect)
+         
 
 def draw_turns():
     font = pygame.font.Font(None, 36)
@@ -98,7 +175,7 @@ def draw_main_page():
     text_rect = text.get_rect(center=main_button_rect.center)
     display.blit(text, text_rect)
 
-def draw_second_page():
+def draw_loading_page():
     display.blit(loading_image, (0, 0))  # Use the loading image here
     draw_turns()
 
@@ -114,31 +191,7 @@ def draw_second_page():
     next_text_rect = next_text.get_rect(center=next_button_rect.center)
     display.blit(next_text, next_text_rect)
 
-def draw_third_page():
-    display.blit(question_bg_image, (0, 0))
-    draw_turns()
-    font = pygame.font.Font(None, 48)
-
-    if turns % 2 == 1:
-        draw_hearing_question()
-
-    else:
-        draw_singing_question()
-   
-    # Draw back button
-    if result_button_rect.collidepoint(pygame.mouse.get_pos()):
-        pygame.draw.rect(display, button_hover_color, result_button_rect)
-    else:
-        pygame.draw.rect(display, button_color, result_button_rect)
-    if turns % 2 == 0:
-        result_text = font.render("Sing!", True, WHITE)
-    else:
-        result_text = font.render("Answer Choice", True, WHITE)
-
-    result_text_rect = result_text.get_rect(center=result_button_rect.center)
-    display.blit(result_text, result_text_rect)
-
-def draw_fourth_page():
+def draw_ending_page():
     display.blit(ending_bg_image, (0, 0))
     draw_turns()
 
@@ -201,7 +254,24 @@ while running:
             if current_page == PAGE_SECOND and next_button_rect.collidepoint(event.pos):
                 current_page = PAGE_THIRD  # Go to third page
                 turns += 1
-            if current_page == PAGE_THIRD and result_button_rect.collidepoint(event.pos):
+                num = random.randint(0, 12)
+                interval = f'intervalsounds/{intervals_sounds[num]}.wav'
+                sound = pygame.mixer.Sound(interval)
+
+                #down here change the answer choices text
+                #and if correct button is clicked score + 1
+                #draw_answer_choices(intervals_sounds[num])
+            if current_page == PAGE_THIRD and (result_button_rects[0].collidepoint(event.pos)
+                                               or result_button_rects[1].collidepoint(event.pos)
+                                               or result_button_rects[2].collidepoint(event.pos)):
+                if correct_ans:
+                    score += 1
+                current_page = PAGE_ANS
+            if current_page == PAGE_THIRD and notes_rect.collidepoint(event.pos):
+                if turns % 2 == 1:
+                    sound.play()
+
+            if current_page == PAGE_THIRD and mic_button_rect.collidepoint(event.pos):
                 if correct_ans:
                     score += 1
                 current_page = PAGE_ANS
@@ -217,13 +287,16 @@ while running:
     if current_page == PAGE_MAIN:
         draw_main_page()
     elif current_page == PAGE_SECOND:
-        draw_second_page()
+        draw_loading_page()
         draw_task_bar()
     elif current_page == PAGE_THIRD:
-        draw_third_page()
+        if turns % 2 == 1:
+            draw_hearing_question()
+        else:
+            draw_singing_question()
         draw_task_bar()
     elif current_page == PAGE_FOURTH:
-        draw_fourth_page()
+        draw_ending_page()
     elif current_page == PAGE_ANS:
         draw_answer_result_page()
         draw_task_bar()
