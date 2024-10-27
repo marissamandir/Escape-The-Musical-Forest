@@ -37,6 +37,7 @@ button_color = GREEN
 button_hover_color = (36, 130, 72)
 
 # Define page states
+#score = 0
 PAGE_MAIN = 0
 PAGE_SECOND = 1
 PAGE_THIRD = 2
@@ -60,16 +61,48 @@ result_button_rects = [
 back_button_rect = pygame.Rect(450, 400, 200, 50)
 continue_button_rect = pygame.Rect(450, 600, 200, 50)
 
+# Answer choice objects
+class AnswerChoice:
+    @property           
+    def name(self): 
+        return self._name
+    #
+    @name.setter   
+    def name(self, value):   
+        self._name = value  
+    @property          
+    def correct(self):
+        return self._correct
+    #
+    @correct.setter   
+    def correct(self, value):   
+        self._correct = value   
+
+    @property           
+    def button(self): 
+        return self._button
+    #
+    @button.setter    
+    def button(self, value):   
+        self._button = value  
+
 
 # GAMEPLAY VARIABLES
+choice_correct = AnswerChoice()
+choice_wrong_1 = AnswerChoice()
+choice_wrong_2 = AnswerChoice()
 max_rounds = 5
 turns = 0
+global score
 score = 0
 correct_ans = True
 answer_processed = False
 
 intervals_sounds = ["fifth", "fourth", "maj2", "maj3", "maj6", "maj7", "min2", "min3", "min6", "min7",
                     "octave", "tritone", "unison"]
+
+intervals_names = ["Perfect Fifth", "Perfect Fourth", "Major Second", "Major Third", "Major Sixth", "Major Seventh", "Minor Second", "Minor Third", "Minor Sixth", "Minor Seventh",
+                    "Octave", "Tritone", "Unison"]
 
 sound = pygame.mixer.Sound('intervalsounds/fifth.wav')
 
@@ -131,22 +164,22 @@ def draw_hearing_question():
     else:
         pygame.draw.rect(display, button_color, result_button_rects[2])
   
-    result_text1 = font.render("Answer Choice", True, WHITE)
+    result_text1 = font.render(choice_correct.name, True, WHITE)
         #here instead we draw 3 buttons w "answer choice" as text
 
-    result_text_rect1 = result_text1.get_rect(center=result_button_rects[0].center)
+    result_text_rect1 = result_text1.get_rect(center=choice_correct.button.center)
     display.blit(result_text1, result_text_rect1)
 
-    result_text2 = font.render("Answer Choice", True, WHITE)
+    result_text2 = font.render(choice_wrong_1.name, True, WHITE)
         #here instead we draw 3 buttons w "answer choice" as text
 
-    result_text_rect2 = result_text2.get_rect(center=result_button_rects[1].center)
+    result_text_rect2 = result_text2.get_rect(center=choice_wrong_1.button.center)
     display.blit(result_text2, result_text_rect2)
 
-    result_text3 = font.render("Answer Choice", True, WHITE)
+    result_text3 = font.render(choice_wrong_2.name, True, WHITE)
         #here instead we draw 3 buttons w "answer choice" as text
 
-    result_text_rect3 = result_text3.get_rect(center=result_button_rects[2].center)
+    result_text_rect3 = result_text3.get_rect(center=choice_wrong_2.button.center)
     display.blit(result_text3, result_text_rect3)
 
     font = pygame.font.Font(None, 48)
@@ -221,7 +254,7 @@ def draw_answer_result_page():
     font = pygame.font.Font(None, 48)
     if correct_ans:
         #global score
-        #score += 1
+        #score +=1
         text = font.render("Correct!", True, BLACK)
     else:
         text = font.render("Incorrect", True, BLACK)
@@ -252,20 +285,41 @@ while running:
             if current_page == PAGE_MAIN and main_button_rect.collidepoint(event.pos):
                 current_page = PAGE_SECOND  # Go to second page
             if current_page == PAGE_SECOND and next_button_rect.collidepoint(event.pos):
-                current_page = PAGE_THIRD  # Go to third page
                 turns += 1
                 num = random.randint(0, 12)
                 interval = f'intervalsounds/{intervals_sounds[num]}.wav'
                 sound = pygame.mixer.Sound(interval)
 
                 #down here change the answer choices text
+                num2 = random.randint(0, 2)
+                num3 = random.randint(0, 12)
+                num4 = random.randint(0, 12)
+                while(1==1):
+                    if((num4 != num3) and (num4 != num) and (num3 != num)):
+                        break
+                    num3 = random.randint(0, 12)
+                    num4 = random.randint(0, 12)
+                
+
+                choice_correct.name = intervals_names[num]
+                choice_correct.button = result_button_rects[num2]
+                choice_wrong_1.name = intervals_names[num3]
+                choice_wrong_1.button = result_button_rects[(num2+1)%3]
+                choice_wrong_2.name = intervals_names[num4]
+                choice_wrong_2.button = result_button_rects[(num2+2)%3]
+
                 #and if correct button is clicked score + 1
                 #draw_answer_choices(intervals_sounds[num])
-            if current_page == PAGE_THIRD and (result_button_rects[0].collidepoint(event.pos)
+                current_page = PAGE_THIRD  # Go to third page
+            if ((current_page == PAGE_THIRD) and (choice_correct.button.collidepoint(event.pos))):
+                correct_ans = True
+                score += 1
+                current_page = PAGE_ANS
+            elif ((current_page == PAGE_THIRD) and (result_button_rects[0].collidepoint(event.pos)
                                                or result_button_rects[1].collidepoint(event.pos)
-                                               or result_button_rects[2].collidepoint(event.pos)):
-                if correct_ans:
-                    score += 1
+                                               or result_button_rects[2].collidepoint(event.pos))):
+                
+                correct_ans = False
                 current_page = PAGE_ANS
             if current_page == PAGE_THIRD and notes_rect.collidepoint(event.pos):
                 if turns % 2 == 1:
