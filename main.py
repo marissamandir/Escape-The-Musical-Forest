@@ -224,9 +224,9 @@ while running:
         draw_task_bar()
     elif current_page == PAGE_FOURTH:
         draw_fourth_page()
-        draw_task_bar()
     elif current_page == PAGE_ANS:
         draw_answer_result_page()
+        draw_task_bar()
 
     pygame.display.flip()
 
