@@ -216,14 +216,19 @@ while running:
 
     if current_page == PAGE_MAIN:
         draw_main_page()
+        draw_task_bar()
     elif current_page == PAGE_SECOND:
         draw_second_page()
+        draw_task_bar()
     elif current_page == PAGE_THIRD:
         draw_third_page()
+        draw_task_bar()
     elif current_page == PAGE_FOURTH:
         draw_fourth_page()
+        draw_task_bar()
     elif current_page == PAGE_ANS:
         draw_answer_result_page()
+        draw_task_bar()
 
     pygame.display.flip()
 
