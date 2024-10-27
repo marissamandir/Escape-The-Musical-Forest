@@ -128,6 +128,84 @@ lines = ["You stand at the edge of a dark, tangled forest. \nLegend has it that 
         "You are being chased. \nPointed claws grasp at your back. \nRun! There - in the distance - is that light?",
         "Something awaits..."]
 
+# PITCH DETECTION
+def detect_pitch(note_answer):
+    note_values = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185, 196, 207.65, 220, 233.08, 246.94]
+    note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    FORMAT = pyaudio.paInt16
+    CHANNELS = 1
+    RATE = 44100
+    CHUNK = 1024
+    RECORD_SECONDS = 5  
+    WAVE_OUTPUT_FILENAME = "file.wav"
+  
+    audio = pyaudio.PyAudio()
+  
+    # start Recording
+    stream = audio.open(format=FORMAT, channels=CHANNELS,
+                rate=RATE, input=True,
+                frames_per_buffer=CHUNK)
+    print ("recording...")
+    frames = []
+  
+    for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
+        data = stream.read(CHUNK)
+        frames.append(data)
+    print ("finished recording")
+  
+  
+    # stop Recording
+    stream.stop_stream()
+    stream.close()
+    audio.terminate()
+
+    #for debugging -- save recorded input as file
+
+    waveFile = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+    waveFile.setnchannels(CHANNELS)
+    waveFile.setsampwidth(audio.get_sample_size(FORMAT))
+    waveFile.setframerate(RATE)
+    waveFile.writeframes(b''.join(frames))
+    waveFile.close()
+
+    x, sr = librosa.load(WAVE_OUTPUT_FILENAME)
+    #x, sr = librosa.load("intervalsounds/unison.wav")
+
+    r = librosa.autocorrelate(x, max_size=5000)
+    hi_sample = 200.0
+    lo_sample = 12.0
+    t_lo = sr/hi_sample
+    t_hi = sr/lo_sample
+
+    r[:int(t_lo)] = 0
+    r[int(t_hi):] = 0
+
+    t_max = r.argmax()
+    my_freq = float(sr)/t_max
+    print(my_freq)
+    note_values2 = note_values
+
+    if(my_freq > 126):
+
+        while (not(my_freq >= note_values2[0]-7 and my_freq <= note_values2[11]+7 )):
+            for i in range (12):
+                note_values2[i] = 2 * note_values2[i]
+      
+        minValue = 999999
+        noteIdentified = 0
+        for i in range (12):
+    
+            if(minValue > abs(my_freq-note_values2[i])):
+                minValue = abs(my_freq-note_values2[i])
+                noteIdentified = i
+                #print(noteIdentified)
+      
+            return(note_names[noteIdentified]==note_answer)
+    
+    else:
+        return(False)
+
+
 # PAGE DRAWING METHODS
 
 def render_multiline_text(text, font, color, x, y, line_spacing=5):
