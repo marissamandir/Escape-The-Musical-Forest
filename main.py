@@ -116,7 +116,7 @@ intervals_photos = ["fifth.png", "fourth.png", "maj2.png", "maj3.png", "maj6.png
                     "min2.png", "min3.png", "min6.png", "min7.png", "octave.png", "Tritone.png", "unison.png"]
 
 sound = pygame.mixer.Sound('intervalsounds/fifth.wav')
-c_note = pygame.mixer.Sound('intervalsounds/c.wav')
+c_note = pygame.mixer.Sound('middle c.wav')
 
 notes_png = pygame.image.load('notes.png')
 notes_rect = notes_png.get_rect(topleft=(450, 220))
