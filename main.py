@@ -135,6 +135,8 @@ lines = ["You stand at the edge of a dark, tangled forest. \nLegend has it that 
 
 # PITCH DETECTION
 def detect_pitch(note_answer):
+    if(note_answer == "Octave"):
+        note_answer = "Unison"
     note_values = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185, 196, 207.65, 220, 233.08, 246.94]
     note_names = ["Unison", "Minor Second", "Major Second", "Minor Third", "Major Third", "Perfect Fourth", "Tritone", "Perfect Fifth", "Minor Sixth", "Major Sixth", "Minor Seventh", "Major Seventh"]
     FORMAT = pyaudio.paInt16
