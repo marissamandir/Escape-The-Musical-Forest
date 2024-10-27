@@ -1,3 +1,5 @@
+✨ Winner of Technica 2024 Best Gameification Hack ✨
+
 🎵 The idea for this project was born out of our team's shared love for and experience with music. We have each
 done some studies in musical theory, and agreed that a particularly difficult element was identifying intervals. 
 We wanted to create something that could help future music theory students, but was more engaging than endless 
