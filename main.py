@@ -7,6 +7,7 @@ pygame.init()
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (129, 167, 144)
+DARK_GREEN = (36,130,72)
 RED = (255, 0, 0)
 
 # DISPLAY SET UP
@@ -49,7 +50,7 @@ continue_button_rect = pygame.Rect(450, 600, 200, 50)
 
 
 # GAMEPLAY VARIABLES
-
+max_rounds = 5
 turns = 0
 score = 0
 correct_ans = True
@@ -57,6 +58,14 @@ answer_processed = False
 
 # PAGE DRAWING METHODS
 
+def draw_task_bar():
+    bar_end = 550 * ((score)/max_rounds)
+    pygame.draw.rect(display, DARK_GREEN, (290, 20, 550, 35))
+    pygame.draw.rect(display, GREEN, (297, 27, bar_end, 22))
+    pygame.draw.rect(display, BLACK, ((297 + bar_end), 20, 6, 35))
+    pygame.draw.rect(display, BLACK, ((297 + bar_end), 20, 17, 9))
+    pygame.draw.ellipse(display, BLACK, ((280 + bar_end), 43, 25, 20))
+    
 def draw_singing_question():
     font = pygame.font.Font(None, 48)
     text = font.render("Sight-Singing Question Goes Here", True, BLACK)
