@@ -62,9 +62,9 @@ mic_button_rect = pygame.Rect(450, 500, 200, 50)
 
 
 result_button_rects = [
-    pygame.Rect(450, 500, 200, 50),  # First button
-    pygame.Rect(450, 570, 200, 50),  # Second button
-    pygame.Rect(450, 640, 200, 50)   # Third button
+    pygame.Rect(450, 500, 250, 50),  # First button
+    pygame.Rect(450, 570, 250, 50),  # Second button
+    pygame.Rect(450, 640, 250, 50)   # Third button
 ]
 
 
