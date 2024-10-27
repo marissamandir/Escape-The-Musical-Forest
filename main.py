@@ -59,7 +59,7 @@ answer_processed = False
 # PAGE DRAWING METHODS
 
 def draw_task_bar():
-    bar_end = 550 * ((score)/max_rounds)
+    bar_end = 550 * ((score)/max_rounds) -10
     pygame.draw.rect(display, DARK_GREEN, (290, 20, 550, 35))
     pygame.draw.rect(display, GREEN, (297, 27, bar_end, 22))
     pygame.draw.rect(display, BLACK, ((297 + bar_end), 20, 6, 35))
@@ -216,7 +216,6 @@ while running:
 
     if current_page == PAGE_MAIN:
         draw_main_page()
-        draw_task_bar()
     elif current_page == PAGE_SECOND:
         draw_second_page()
         draw_task_bar()
@@ -228,7 +227,6 @@ while running:
         draw_task_bar()
     elif current_page == PAGE_ANS:
         draw_answer_result_page()
-        draw_task_bar()
 
     pygame.display.flip()
 
