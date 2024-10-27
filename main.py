@@ -3,6 +3,7 @@ import random
 import pyaudio
 import librosa
 import wave
+import time
 
 # Initialize Pygame
 pygame.init()
@@ -212,11 +213,49 @@ def detect_pitch(note_answer):
 
 # PAGE DRAWING METHODS
 
-def render_multiline_text(text, font, color, x, y, line_spacing=5):
+#def render_multiline_text(text, font, color, x, y, line_spacing=5):
+#    lines = text.split('\n')  # Split the text into lines
+#    for i, line in enumerate(lines):
+#        text_surface = font.render(line, True, color)  # Render each line
+#        display.blit(text_surface, (x, y + i * (text_surface.get_height() + line_spacing)))  # Blit each line
+
+def render_multiline_text(display, text, font, color, x, y, line_spacing=5, typing_speed=0.05):
+
     lines = text.split('\n')  # Split the text into lines
-    for i, line in enumerate(lines):
-        text_surface = font.render(line, True, color)  # Render each line
-        display.blit(text_surface, (x, y + i * (text_surface.get_height() + line_spacing)))  # Blit each line
+    typed_lines = [''] * len(lines)  # Initialize typed_lines with empty strings
+
+    # Calculate the height of the text block
+    total_height = sum(font.get_height() for _ in lines) + line_spacing * (len(lines) - 1)
+    
+    # Set the rectangle's properties
+    rect_width = max(font.size(line)[0] for line in lines) + 10  # Width based on the longest line plus some padding
+    rect_height = total_height + 10  # Height with some padding
+    rect_x = x - 5  # Slightly offset to the left for padding
+    rect_y = y - 5  # Slightly offset to the top for padding
+
+    # Draw the transparent grey rectangle
+    grey_surface = pygame.Surface((rect_width, rect_height))
+    grey_surface.set_alpha(128)  # Set transparency level (0-255)
+    grey_surface.fill((128, 128, 128))  # Fill with grey color
+    display.blit(grey_surface, (rect_x, rect_y))  # Blit the rectangle
+
+    for line_index, line in enumerate(lines):
+        for char in line:
+            typed_lines[line_index] += char  # Build the typed text line by line
+            
+            # Redraw everything
+            display.blit(loading_image, (0, 0))  # Draw the background again
+            display.blit(grey_surface, (rect_x, rect_y))  # Redraw the grey rectangle
+
+            # Render and blit the currently typed lines
+            for i, typed_line in enumerate(typed_lines):
+                text_surface = font.render(typed_line, True, color)
+                display.blit(text_surface, (x, y + i * (font.get_height() + line_spacing)))
+
+            pygame.display.flip()  # Update the display
+            time.sleep(typing_speed)  # Wait for a moment before adding the next character
+    return typed_lines
+
 
 
 def draw_task_bar():
@@ -367,7 +406,15 @@ def draw_loading_page():
 
 
     font = pygame.font.Font(None, 48)
-    render_multiline_text(lines[turns], font, BLACK, 200, 150)
+    #global typing_done
+    #if not typing_done:
+    #    typed_lines = render_multiline_text(display, lines[turns], font, BLACK, 200, 150)
+    #    typing_done = True
+    #else:
+    #    # Render the complete text after typing is done
+    #    for i, line in enumerate(lines[turns].split('\n')):
+    #        text_surface = font.render(line, True, BLACK)
+    #        display.blit(text_surface, (200, 150 + i * (font.get_height() + 5)))
     
     mouse_pos = pygame.mouse.get_pos()
     # Draw back button
@@ -432,6 +479,7 @@ def draw_answer_result_page():
 
 # Main loop
 running = True
+typing_done = False
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -439,6 +487,20 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if current_page == PAGE_MAIN and main_button_rect.collidepoint(event.pos):
                 current_page = PAGE_SECOND  # Go to second page
+
+                font = pygame.font.Font(None, 48)
+                typing_done = False
+                if not typing_done:
+                    typed_lines = render_multiline_text(display, lines[turns], font, BLACK, 200, 150)
+                    typing_done = True
+                else:
+                # Render the complete text after typing is done
+                    for i, line in enumerate(lines[turns].split('\n')):
+                        text_surface = font.render(line, True, BLACK)
+                        display.blit(text_surface, (200, 150 + i * (font.get_height() + 5)))
+                typing_done = True
+
+
             if current_page == PAGE_MAIN and info_button_rect.collidepoint(event.pos):
                 current_page = INFO_PAGE
             if current_page == INFO_PAGE and close_button_rect.collidepoint(event.pos):
@@ -505,6 +567,17 @@ while running:
                     score = 0
                 else:
                     current_page = PAGE_SECOND
+                    font = pygame.font.Font(None, 48)
+                    typing_done = False
+                    if not typing_done:
+                        typed_lines = render_multiline_text(display, lines[turns], font, BLACK, 200, 150)
+                        typing_done = True
+                    else:
+                    # Render the complete text after typing is done
+                        for i, line in enumerate(lines[turns].split('\n')):
+                            text_surface = font.render(line, True, BLACK)
+                            display.blit(text_surface, (200, 150 + i * (font.get_height() + 5)))
+                    typing_done = True
             if current_page == PAGE_FOURTH and back_button_rect.collidepoint(event.pos):
                 current_page = PAGE_MAIN
 
@@ -512,9 +585,11 @@ while running:
         background_track.play()
         draw_main_page()
     elif current_page == PAGE_SECOND:
+        typing_done = False
         background_track.play()
         draw_loading_page()
         draw_task_bar()
+        typing_done = True
     elif current_page == PAGE_SINGING_QUESTION:
         background_track.stop()
         draw_singing_question(singing_num)
