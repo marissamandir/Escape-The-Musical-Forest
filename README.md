@@ -9,3 +9,6 @@ question_bg, and notes png files make up our UI. We stored necessary audio files
 corresponding scores in the intervalsounds and intervalimages folders. The technica 2024 file shows
 the beginning stages of us learning pygame for this project.
 
+![image](https://github.com/user-attachments/assets/30e4272c-3ef8-4187-9387-577f6784bd36)
+
+
