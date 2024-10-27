@@ -134,7 +134,7 @@ lines = ["You stand at the edge of a dark, tangled forest. \nLegend has it that 
 # PITCH DETECTION
 def detect_pitch(note_answer):
     note_values = [130.81, 138.59, 146.83, 155.56, 164.81, 174.61, 185, 196, 207.65, 220, 233.08, 246.94]
-    note_names = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+    note_names = ["Unison", "Minor Second", "Major Second", "Minor Third", "Major Third", "Perfect Fourth", "Tritone", "Perfect Fifth", "Minor Sixth", "Major Sixth", "Minor Seventh", "Major Seventh"]
     FORMAT = pyaudio.paInt16
     CHANNELS = 1
     RATE = 44100
@@ -493,6 +493,7 @@ while running:
                 c_note.play()
 
             if current_page == PAGE_SINGING_QUESTION and mic_button_rect.collidepoint(event.pos):
+                correct_ans = detect_pitch(intervals_names[singing_num])
                 if correct_ans:
                     score += 1
                 current_page = PAGE_ANS
@@ -536,3 +537,4 @@ while running:
 
 # Quit Pygame
 pygame.quit()
+
