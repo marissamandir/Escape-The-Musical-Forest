@@ -204,7 +204,7 @@ def detect_pitch(note_answer):
                 noteIdentified = i
                 #print(noteIdentified)
       
-            return(note_names[noteIdentified]==note_answer)
+        return(note_names[noteIdentified]==note_answer)
     
     else:
         return(False)
