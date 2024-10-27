@@ -72,6 +72,7 @@ continue_button_rect = pygame.Rect(450, 600, 200, 50)
 info_button_rect = pygame.Rect(450, 575, 200, 50)
 close_button_rect = pygame.Rect(450, 625, 200, 50)
 
+button_size = main_button_rect.size
 # Answer choice objects
 class AnswerChoice:
     @property           
@@ -128,7 +129,7 @@ notes_rect = notes_png.get_rect(topleft=(450, 220))
 lines = ["You stand at the edge of a dark, tangled forest. \nLegend has it that those who survive the journey \nthrough will find great fortune. \nYour first step crunches the fallen leaves.",
         "The sun is blocked out by thick canopy. \nDespite its name, the forest is silent. \nShadows loom. Still, you press onwards.",
         "You think that night has fallen. \nSomething has awakened, and a strange shape \nrustles through the foliage in the corner of \nyour vision. Watching. Waiting.",
-        "You are being chased. \nPointed claws grasp at your back. \nRun! There - in the distance - is that light?",
+        "You go further into the distance.\nLight begins to appear.",
         "Something awaits..."]
 
 # PITCH DETECTION
@@ -387,7 +388,7 @@ def draw_ending_page():
         text = font.render("You escaped!", True, BLACK)
     else:
         text = font.render("You did not escape :(", True, BLACK)
-    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
+    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 - 100))
     display.blit(text, text_rect)
 
 
