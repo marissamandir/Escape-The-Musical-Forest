@@ -6,7 +6,7 @@ pygame.init()
 # Define colors
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
-GREEN = (0, 255, 0)
+GREEN = (129, 167, 144)
 RED = (255, 0, 0)
 
 # DISPLAY SET UP
@@ -25,29 +25,58 @@ loading_image = pygame.transform.scale(loading_image, window_size)
 question_bg_image = pygame.image.load('question_bg.png')
 question_bg_image = pygame.transform.scale(question_bg_image, window_size)
 
+#load & scale background for the ending page
+ending_bg_image = pygame.image.load('ending_background.png')
+ending_bg_image = pygame.transform.scale(ending_bg_image, window_size)
+
 # Button properties
 button_color = GREEN
-button_hover_color = (0, 200, 0)
+button_hover_color = (36, 130, 72)
 
 # Define page states
 PAGE_MAIN = 0
 PAGE_SECOND = 1
 PAGE_THIRD = 2
+PAGE_FOURTH = 3
+PAGE_ANS = 4
 current_page = PAGE_MAIN
 
 main_button_rect = pygame.Rect(450, 500, 200, 50)
 next_button_rect = pygame.Rect(450, 400, 200, 50)
-back_button_rect = pygame.Rect(450, 500, 200, 50)
+result_button_rect = pygame.Rect(450, 500, 200, 50)
+back_button_rect = pygame.Rect(450, 400, 200, 50)
+continue_button_rect = pygame.Rect(450, 600, 200, 50)
+
 
 # GAMEPLAY VARIABLES
 
 turns = 0
 score = 0
+correct_ans = True
+answer_processed = False
 
 # PAGE DRAWING METHODS
 
+def draw_singing_question():
+    font = pygame.font.Font(None, 48)
+    text = font.render("Sight-Singing Question Goes Here", True, BLACK)
+    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
+    display.blit(text, text_rect)
+
+def draw_hearing_question():
+    font = pygame.font.Font(None, 48)
+    text = font.render("Hearing Interval Question Goes Here", True, BLACK)
+    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
+    display.blit(text, text_rect)
+
+def draw_turns():
+    font = pygame.font.Font(None, 36)
+    turns_text = font.render(f"Turns: {turns}, Score: {score}", True, BLACK)
+    display.blit(turns_text, (10, 10))  # Draw in the top-left corner
+
 def draw_main_page():
     display.blit(bg_image, (0, 0))
+
     mouse_pos = pygame.mouse.get_pos()
     if main_button_rect.collidepoint(mouse_pos):
         pygame.draw.rect(display, button_hover_color, main_button_rect)
@@ -62,13 +91,10 @@ def draw_main_page():
 
 def draw_second_page():
     display.blit(loading_image, (0, 0))  # Use the loading image here
+    draw_turns()
 
 
     font = pygame.font.Font(None, 48)
-    text = font.render("Welcome to the Second Page!", True, BLACK)
-    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
-    display.blit(text, text_rect)
-
     mouse_pos = pygame.mouse.get_pos()
     # Draw back button
     if next_button_rect.collidepoint(mouse_pos):
@@ -81,9 +107,37 @@ def draw_second_page():
 
 def draw_third_page():
     display.blit(question_bg_image, (0, 0))
+    draw_turns()
+    font = pygame.font.Font(None, 48)
+
+    if turns % 2 == 1:
+        draw_hearing_question()
+
+    else:
+        draw_singing_question()
+   
+    # Draw back button
+    if result_button_rect.collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(display, button_hover_color, result_button_rect)
+    else:
+        pygame.draw.rect(display, button_color, result_button_rect)
+    if turns % 2 == 0:
+        result_text = font.render("Sing!", True, WHITE)
+    else:
+        result_text = font.render("Answer Choice", True, WHITE)
+
+    result_text_rect = result_text.get_rect(center=result_button_rect.center)
+    display.blit(result_text, result_text_rect)
+
+def draw_fourth_page():
+    display.blit(ending_bg_image, (0, 0))
+    draw_turns()
 
     font = pygame.font.Font(None, 48)
-    text = font.render("Welcome to the Third Page!", True, BLACK)
+    if score >= 4:
+        text = font.render("You escaped!", True, BLACK)
+    else:
+        text = font.render("You did not escape :(", True, BLACK)
     text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
     display.blit(text, text_rect)
 
@@ -94,9 +148,36 @@ def draw_third_page():
         pygame.draw.rect(display, button_hover_color, back_button_rect)
     else:
         pygame.draw.rect(display, button_color, back_button_rect)
-    back_text = font.render("Continue", True, WHITE)
+    back_text = font.render("Play Again", True, WHITE)
     back_text_rect = back_text.get_rect(center=back_button_rect.center)
     display.blit(back_text, back_text_rect)
+
+def draw_answer_result_page():
+    display.blit(question_bg_image, (0, 0))
+    draw_turns()
+
+    font = pygame.font.Font(None, 48)
+    if correct_ans:
+        #global score
+        #score += 1
+        text = font.render("Correct!", True, BLACK)
+    else:
+        text = font.render("Incorrect", True, BLACK)
+        #answer_processed = True
+    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
+    display.blit(text, text_rect)
+
+
+   
+    # Draw back button
+    if continue_button_rect.collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(display, button_hover_color, continue_button_rect)
+    else:
+        pygame.draw.rect(display, button_color, continue_button_rect)
+    continue_text = font.render("Continue", True, WHITE)
+    continue_text_rect = continue_text.get_rect(center=continue_button_rect.center)
+    display.blit(continue_text, continue_text_rect)
+
 
 
 # Main loop
@@ -110,8 +191,19 @@ while running:
                 current_page = PAGE_SECOND  # Go to second page
             if current_page == PAGE_SECOND and next_button_rect.collidepoint(event.pos):
                 current_page = PAGE_THIRD  # Go to third page
-            if current_page == PAGE_THIRD and back_button_rect.collidepoint(event.pos):
-                current_page = PAGE_MAIN #go back to main page
+                turns += 1
+            if current_page == PAGE_THIRD and result_button_rect.collidepoint(event.pos):
+                if correct_ans:
+                    score += 1
+                current_page = PAGE_ANS
+            if current_page == PAGE_ANS and continue_button_rect.collidepoint(event.pos):
+                if turns >= 5:
+                    current_page = PAGE_FOURTH #go back to main page
+                    turns = 0
+                else:
+                    current_page = PAGE_SECOND
+            if current_page == PAGE_FOURTH and back_button_rect.collidepoint(event.pos):
+                current_page = PAGE_MAIN
 
     if current_page == PAGE_MAIN:
         draw_main_page()
@@ -119,6 +211,10 @@ while running:
         draw_second_page()
     elif current_page == PAGE_THIRD:
         draw_third_page()
+    elif current_page == PAGE_FOURTH:
+        draw_fourth_page()
+    elif current_page == PAGE_ANS:
+        draw_answer_result_page()
 
     pygame.display.flip()
 
