@@ -219,7 +219,7 @@ def detect_pitch(note_answer):
 #        text_surface = font.render(line, True, color)  # Render each line
 #        display.blit(text_surface, (x, y + i * (text_surface.get_height() + line_spacing)))  # Blit each line
 
-def render_multiline_text(display, text, font, color, x, y, line_spacing=5, typing_speed=0.05):
+def render_multiline_text(display, text, font, color, x, y, line_spacing=5, typing_speed=0.04):
 
     lines = text.split('\n')  # Split the text into lines
     typed_lines = [''] * len(lines)  # Initialize typed_lines with empty strings
@@ -430,12 +430,12 @@ def draw_ending_page():
     display.blit(ending_bg_image, (0, 0))
     draw_turns()
 
-    font = pygame.font.Font(None, 48)
+    font = pygame.font.Font(None, 60)
     if score >= 4:
-        text = font.render("You escaped!", True, BLACK)
+        text = font.render("Congratulations, you escaped!", True, BLACK)
     else:
-        text = font.render("You did not escape :(", True, BLACK)
-    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 - 100))
+        text = font.render("Alas, you did not escape :(", True, BLACK)
+    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 - 120))
     display.blit(text, text_rect)
 
 
