@@ -32,6 +32,9 @@ question_bg_image = pygame.transform.scale(question_bg_image, window_size)
 ending_bg_image = pygame.image.load('ending_background.png')
 ending_bg_image = pygame.transform.scale(ending_bg_image, window_size)
 
+intro_text_image = pygame.image.load('intro_text.png')
+intro_text_image = pygame.transform.scale(intro_text_image, (500, 500))
+
 # Button properties
 button_color = GREEN
 button_hover_color = (36, 130, 72)
@@ -40,14 +43,17 @@ button_hover_color = (36, 130, 72)
 #score = 0
 PAGE_MAIN = 0
 PAGE_SECOND = 1
-PAGE_THIRD = 2
-PAGE_FOURTH = 3
-PAGE_ANS = 4
+PAGE_SINGING_QUESTION = 2
+PAGE_HEARING_QUESTION = 3
+PAGE_FOURTH = 4
+PAGE_ANS = 5
+INFO_PAGE = 6
 current_page = PAGE_MAIN
 
 main_button_rect = pygame.Rect(450, 500, 200, 50)
 next_button_rect = pygame.Rect(450, 400, 200, 50)
 
+first_pitch_button_rect = pygame.Rect(450, 430, 200, 50)
 mic_button_rect = pygame.Rect(450, 500, 200, 50)
 
 
@@ -60,6 +66,8 @@ result_button_rects = [
 
 back_button_rect = pygame.Rect(450, 400, 200, 50)
 continue_button_rect = pygame.Rect(450, 600, 200, 50)
+info_button_rect = pygame.Rect(450, 575, 200, 50)
+close_button_rect = pygame.Rect(450, 625, 200, 50)
 
 # Answer choice objects
 class AnswerChoice:
@@ -104,7 +112,11 @@ intervals_sounds = ["fifth", "fourth", "maj2", "maj3", "maj6", "maj7", "min2", "
 intervals_names = ["Perfect Fifth", "Perfect Fourth", "Major Second", "Major Third", "Major Sixth", "Major Seventh", "Minor Second", "Minor Third", "Minor Sixth", "Minor Seventh",
                     "Octave", "Tritone", "Unison"]
 
+intervals_photos = ["fifth.png", "fourth.png", "maj2.png", "maj3.png", "maj6.png", "maj7.png",
+                    "min2.png", "min3.png", "min6.png", "min7.png", "octave.png", "Tritone.png", "unison.png"]
+
 sound = pygame.mixer.Sound('intervalsounds/fifth.wav')
+c_note = pygame.mixer.Sound('intervalsounds/c.wav')
 
 notes_png = pygame.image.load('notes.png')
 notes_rect = notes_png.get_rect(topleft=(450, 220))
@@ -119,14 +131,20 @@ def draw_task_bar():
     pygame.draw.rect(display, BLACK, ((297 + bar_end), 20, 17, 9))
     pygame.draw.ellipse(display, BLACK, ((280 + bar_end), 43, 25, 20))
     
-def draw_singing_question():
+def draw_singing_question(singing_num):
     display.blit(question_bg_image, (0, 0))
     draw_turns()
     font = pygame.font.Font(None, 48)
 
+    solfege_img = pygame.image.load(f'intervalimages/{intervals_photos[singing_num]}')
+    solfege_img = pygame.transform.scale(solfege_img, (200, 200))
+    display.blit(solfege_img, (450, 220))
+
+    
+
     font = pygame.font.Font(None, 48)
-    text = font.render("Sight-Singing Question Goes Here", True, BLACK)
-    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2))
+    text = font.render(f"Sing a {intervals_names[singing_num]} - Only sing the second note!", True, BLACK)
+    text_rect = text.get_rect(center=(window_size[0] // 2, window_size[1] // 2 - 200))
     display.blit(text, text_rect)
 
     # Draw back button
@@ -139,6 +157,16 @@ def draw_singing_question():
   
     mic_text_rect = mic_text.get_rect(center=mic_button_rect.center)
     display.blit(mic_text, mic_text_rect)
+
+    if first_pitch_button_rect.collidepoint(pygame.mouse.get_pos()):
+        pygame.draw.rect(display, button_hover_color, first_pitch_button_rect)
+    else:
+        pygame.draw.rect(display, (217, 217, 217), first_pitch_button_rect)
+    
+    first_pitch_text = font.render("First Pitch", True, BLACK)
+  
+    first_pitch_text_rect = first_pitch_text.get_rect(center=first_pitch_button_rect.center)
+    display.blit(first_pitch_text, first_pitch_text_rect)
 
 def draw_hearing_question():
     display.blit(question_bg_image, (0, 0))
@@ -207,6 +235,35 @@ def draw_main_page():
     text = font.render("Play", True, WHITE)
     text_rect = text.get_rect(center=main_button_rect.center)
     display.blit(text, text_rect)
+
+    if info_button_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(display, button_hover_color, info_button_rect)
+    else:
+        pygame.draw.rect(display, (217, 217, 217), info_button_rect)
+    
+    # Draw button text
+    text_info = font.render("Info", True, BLACK)
+    text_info_rect = text_info.get_rect(center=info_button_rect.center)
+    display.blit(text_info, text_info_rect)
+
+def draw_info_page():
+    display.blit(bg_image, (0, 0))
+    display.blit(intro_text_image, (300, 100))
+
+    mouse_pos = pygame.mouse.get_pos()
+    if close_button_rect.collidepoint(mouse_pos):
+        pygame.draw.rect(display, button_hover_color, close_button_rect)
+    else:
+        pygame.draw.rect(display, RED, close_button_rect)
+    
+    # Draw button text
+    font = pygame.font.Font(None, 36)
+    close_text = font.render("Close", True, WHITE)
+    text_rect = close_text.get_rect(center=close_button_rect.center)
+    display.blit(close_text, text_rect)
+
+   
+
 
 def draw_loading_page():
     display.blit(loading_image, (0, 0))  # Use the loading image here
@@ -284,6 +341,10 @@ while running:
         if event.type == pygame.MOUSEBUTTONDOWN:
             if current_page == PAGE_MAIN and main_button_rect.collidepoint(event.pos):
                 current_page = PAGE_SECOND  # Go to second page
+            if current_page == PAGE_MAIN and info_button_rect.collidepoint(event.pos):
+                current_page = INFO_PAGE
+            if current_page == INFO_PAGE and close_button_rect.collidepoint(event.pos):
+                current_page = PAGE_MAIN
             if current_page == PAGE_SECOND and next_button_rect.collidepoint(event.pos):
                 turns += 1
                 num = random.randint(0, 12)
@@ -310,29 +371,39 @@ while running:
 
                 #and if correct button is clicked score + 1
                 #draw_answer_choices(intervals_sounds[num])
-                current_page = PAGE_THIRD  # Go to third page
-            if ((current_page == PAGE_THIRD) and (choice_correct.button.collidepoint(event.pos))):
+                if turns % 2 == 1:
+                    current_page = PAGE_HEARING_QUESTION  # Go to third page
+                else:
+                    current_page = PAGE_SINGING_QUESTION
+                    singing_num = random.randint(0, 12)
+                    
+
+            if ((current_page == PAGE_HEARING_QUESTION) and (choice_correct.button.collidepoint(event.pos))):
                 correct_ans = True
                 score += 1
                 current_page = PAGE_ANS
-            elif ((current_page == PAGE_THIRD) and (result_button_rects[0].collidepoint(event.pos)
+            elif ((current_page == PAGE_HEARING_QUESTION) and (result_button_rects[0].collidepoint(event.pos)
                                                or result_button_rects[1].collidepoint(event.pos)
                                                or result_button_rects[2].collidepoint(event.pos))):
                 
                 correct_ans = False
                 current_page = PAGE_ANS
-            if current_page == PAGE_THIRD and notes_rect.collidepoint(event.pos):
+            if current_page == PAGE_HEARING_QUESTION and notes_rect.collidepoint(event.pos):
                 if turns % 2 == 1:
                     sound.play()
+            
+            if current_page == PAGE_SINGING_QUESTION and first_pitch_button_rect.collidepoint(event.pos):
+                c_note.play()
 
-            if current_page == PAGE_THIRD and mic_button_rect.collidepoint(event.pos):
+            if current_page == PAGE_SINGING_QUESTION and mic_button_rect.collidepoint(event.pos):
                 if correct_ans:
                     score += 1
                 current_page = PAGE_ANS
             if current_page == PAGE_ANS and continue_button_rect.collidepoint(event.pos):
-                if turns >= 5:
+                if score >= 5 or turns >= 5:
                     current_page = PAGE_FOURTH #go back to main page
                     turns = 0
+                    score = 0
                 else:
                     current_page = PAGE_SECOND
             if current_page == PAGE_FOURTH and back_button_rect.collidepoint(event.pos):
@@ -343,17 +414,19 @@ while running:
     elif current_page == PAGE_SECOND:
         draw_loading_page()
         draw_task_bar()
-    elif current_page == PAGE_THIRD:
-        if turns % 2 == 1:
-            draw_hearing_question()
-        else:
-            draw_singing_question()
+    elif current_page == PAGE_SINGING_QUESTION:
+        draw_singing_question(singing_num)
+        draw_task_bar()
+    elif current_page == PAGE_HEARING_QUESTION:
+        draw_hearing_question()
         draw_task_bar()
     elif current_page == PAGE_FOURTH:
         draw_ending_page()
     elif current_page == PAGE_ANS:
         draw_answer_result_page()
         draw_task_bar()
+    elif current_page == INFO_PAGE:
+        draw_info_page()
 
     pygame.display.flip()
 
