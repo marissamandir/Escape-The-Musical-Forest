@@ -17,19 +17,19 @@ window_size = (1100, 700)
 display = pygame.display.set_mode(window_size)
 
 # Load and scale background image for the first page
-bg_image = pygame.image.load('intro_background.png')
+bg_image = pygame.image.load('intro_background_2.png')
 bg_image = pygame.transform.scale(bg_image, window_size)
 
 # Load and scale background image for the second page
-loading_image = pygame.image.load('loading_background.png')
+loading_image = pygame.image.load('loading_background_2.png')
 loading_image = pygame.transform.scale(loading_image, window_size)
 
 # load & scale background image for questions page
-question_bg_image = pygame.image.load('question_bg.png')
+question_bg_image = pygame.image.load('question_bg_2.png')
 question_bg_image = pygame.transform.scale(question_bg_image, window_size)
 
 #load & scale background for the ending page
-ending_bg_image = pygame.image.load('ending_background.png')
+ending_bg_image = pygame.image.load('ending_background_2.png')
 ending_bg_image = pygame.transform.scale(ending_bg_image, window_size)
 
 intro_text_image = pygame.image.load('intro_text.png')
@@ -117,11 +117,25 @@ intervals_photos = ["fifth.png", "fourth.png", "maj2.png", "maj3.png", "maj6.png
 
 sound = pygame.mixer.Sound('intervalsounds/fifth.wav')
 c_note = pygame.mixer.Sound('middle c.wav')
+background_track = pygame.mixer.Sound('Rainstorms.wav')
 
 notes_png = pygame.image.load('notes.png')
 notes_rect = notes_png.get_rect(topleft=(450, 220))
 
+lines = ["You stand at the edge of a dark, tangled forest. \nLegend has it that those who survive the journey \nthrough will find great fortune. \nYour first step crunches the fallen leaves.",
+        "The sun is blocked out by thick canopy. \nDespite its name, the forest is silent. \nShadows loom. Still, you press onwards.",
+        "You think that night has fallen. \nSomething has awakened, and a strange shape \nrustles through the foliage in the corner of \nyour vision. Watching. Waiting.",
+        "You are being chased. \nPointed claws grasp at your back. \nRun! There - in the distance - is that light?",
+        "Something awaits..."]
+
 # PAGE DRAWING METHODS
+
+def render_multiline_text(text, font, color, x, y, line_spacing=5):
+    lines = text.split('\n')  # Split the text into lines
+    for i, line in enumerate(lines):
+        text_surface = font.render(line, True, color)  # Render each line
+        display.blit(text_surface, (x, y + i * (text_surface.get_height() + line_spacing)))  # Blit each line
+
 
 def draw_task_bar():
     bar_end = 550 * ((score)/max_rounds) -10
@@ -271,6 +285,8 @@ def draw_loading_page():
 
 
     font = pygame.font.Font(None, 48)
+    render_multiline_text(lines[turns], font, BLACK, 200, 150)
+    
     mouse_pos = pygame.mouse.get_pos()
     # Draw back button
     if next_button_rect.collidepoint(mouse_pos):
@@ -410,22 +426,29 @@ while running:
                 current_page = PAGE_MAIN
 
     if current_page == PAGE_MAIN:
+        background_track.play()
         draw_main_page()
     elif current_page == PAGE_SECOND:
+        background_track.play()
         draw_loading_page()
         draw_task_bar()
     elif current_page == PAGE_SINGING_QUESTION:
+        background_track.stop()
         draw_singing_question(singing_num)
         draw_task_bar()
     elif current_page == PAGE_HEARING_QUESTION:
+        background_track.stop()
         draw_hearing_question()
         draw_task_bar()
     elif current_page == PAGE_FOURTH:
+        background_track.play()
         draw_ending_page()
     elif current_page == PAGE_ANS:
+        background_track.play()
         draw_answer_result_page()
         draw_task_bar()
     elif current_page == INFO_PAGE:
+        background_track.play()
         draw_info_page()
 
     pygame.display.flip()
